@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/AetherVoyager/jellyfin-plugin-sportarr/main/images/logo.png",
     "versions": [
       {
+        "version": "1.0.1",
+        "changelog": "See https://github.com/AetherVoyager/jellyfin-plugin-sportarr/releases/tag/v1.0.1",
+        "targetAbi": "10.9.0.0",
+        "sourceUrl": "https://github.com/AetherVoyager/jellyfin-plugin-sportarr/releases/download/v1.0.1/Sportarr-1.0.1.zip",
+        "checksum": "2d71e9ec7829c704d74516ed955d9276",
+        "timestamp": "2025-12-25T07:49:01Z"
+      },
+      {
         "version": "1.0.0",
         "changelog": "See https://github.com/AetherVoyager/jellyfin-plugin-sportarr/releases/tag/v1.0.0",
         "targetAbi": "10.9.0.0",
