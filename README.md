@@ -237,6 +237,10 @@ Contributions are welcome! Please:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## Credits
+
+This plugin is part of the [Sportarr](https://github.com/Sportarr/Sportarr) project, originally created by the Sportarr team. Sportarr is a sports media management application similar to Radarr/Sonarr but designed specifically for sports content.
+
 ## Links
 
 - [Sportarr Main Project](https://github.com/Sportarr/Sportarr)
