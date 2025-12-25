@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Jellyfin.Plugin.Sportarr</RootNamespace>
+    <AssemblyName>Jellyfin.Plugin.Sportarr</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    
+    <!-- Plugin metadata -->
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.0.0</Version>
+    <PackageId>Jellyfin.Plugin.Sportarr</PackageId>
+    <Description>Sports metadata provider powered by Sportarr API</Description>
+    <Authors>AetherVoyager</Authors>
+    <RepositoryUrl>https://github.com/AetherVoyager/jellyfin-plugin-sportarr</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Jellyfin.Controller" Version="10.9.*" />
+    <PackageReference Include="Jellyfin.Model" Version="10.9.*" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Configuration\configPage.html" />
+  </ItemGroup>
+
+  <!-- Don't copy dependencies to output - Jellyfin provides them -->
+  <ItemGroup>
+    <PackageReference Update="Jellyfin.Controller" PrivateAssets="All" />
+    <PackageReference Update="Jellyfin.Model" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

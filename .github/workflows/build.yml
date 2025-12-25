@@ -1,0 +1,132 @@
+name: Build and Release Jellyfin Plugin
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  PLUGIN_NAME: Sportarr
+  DOTNET_VERSION: '8.0.x'
+  JELLYFIN_VERSION: '10.9.0.0'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Get version
+        id: version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=0.0.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Restore dependencies
+        run: dotnet restore Jellyfin.Plugin.Sportarr/Jellyfin.Plugin.Sportarr.csproj
+
+      - name: Build plugin
+        run: |
+          dotnet build Jellyfin.Plugin.Sportarr/Jellyfin.Plugin.Sportarr.csproj \
+            --configuration Release \
+            --no-restore \
+            -p:Version=${{ steps.version.outputs.VERSION }}
+
+      - name: Create plugin package
+        run: |
+          mkdir -p artifacts
+          cp Jellyfin.Plugin.Sportarr/bin/Release/net8.0/Jellyfin.Plugin.Sportarr.dll artifacts/
+          cp Jellyfin.Plugin.Sportarr/meta.json artifacts/
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PLUGIN_NAME }}
+          path: artifacts/
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PLUGIN_NAME }}
+          path: artifacts/
+
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create ZIP package
+        run: |
+          cd artifacts
+          zip -r ../${{ env.PLUGIN_NAME }}-${{ steps.version.outputs.VERSION }}.zip .
+
+      - name: Calculate checksum
+        id: checksum
+        run: |
+          CHECKSUM=$(md5sum ${{ env.PLUGIN_NAME }}-${{ steps.version.outputs.VERSION }}.zip | cut -d ' ' -f 1)
+          echo "CHECKSUM=${CHECKSUM}" >> $GITHUB_OUTPUT
+
+      - name: Update manifest.json
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          CHECKSUM="${{ steps.checksum.outputs.CHECKSUM }}"
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          # Create new version entry
+          NEW_VERSION=$(cat << EOF
+          {
+            "version": "${VERSION}",
+            "changelog": "See https://github.com/${{ github.repository }}/releases/tag/v${VERSION}",
+            "targetAbi": "${{ env.JELLYFIN_VERSION }}",
+            "sourceUrl": "https://github.com/${{ github.repository }}/releases/download/v${VERSION}/${{ env.PLUGIN_NAME }}-${VERSION}.zip",
+            "checksum": "${CHECKSUM}",
+            "timestamp": "${TIMESTAMP}"
+          }
+          EOF
+          )
+          
+          # Update manifest with new version (prepend to versions array)
+          jq --argjson newver "$NEW_VERSION" '.[0].versions = [$newver] + .[0].versions' manifest.json > manifest.tmp
+          mv manifest.tmp manifest.json
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ env.PLUGIN_NAME }} v${{ steps.version.outputs.VERSION }}
+          files: ${{ env.PLUGIN_NAME }}-${{ steps.version.outputs.VERSION }}.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit updated manifest
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add manifest.json
+          git commit -m "Update manifest.json for v${{ steps.version.outputs.VERSION }}"
+          git push origin HEAD:main

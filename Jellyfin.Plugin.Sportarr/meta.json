@@ -1,0 +1,9 @@
+{
+  "category": "Metadata",
+  "guid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "name": "Sportarr",
+  "description": "Sports metadata provider for Jellyfin. Fetches league, event, and image metadata from your Sportarr server.",
+  "overview": "Sportarr is a sports media management application (similar to Radarr/Sonarr but for sports). This plugin connects Jellyfin to your Sportarr server to provide rich metadata for your sports media library including posters, banners, descriptions, and air dates.",
+  "owner": "AetherVoyager",
+  "imageUrl": "https://raw.githubusercontent.com/AetherVoyager/jellyfin-plugin-sportarr/main/images/logo.png"
+}
