@@ -20,19 +20,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Jellyfin.Controller" Version="10.9.*" />
-    <PackageReference Include="Jellyfin.Model" Version="10.9.*" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.*" />
+    <!-- Jellyfin packages - exclude runtime assets so they don't get bundled -->
+    <PackageReference Include="Jellyfin.Controller" Version="10.9.*">
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Jellyfin.Model" Version="10.9.*">
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.*">
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Configuration\configPage.html" />
-  </ItemGroup>
-
-  <!-- Don't copy dependencies to output - Jellyfin provides them -->
-  <ItemGroup>
-    <PackageReference Update="Jellyfin.Controller" PrivateAssets="All" />
-    <PackageReference Update="Jellyfin.Model" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
